@@ -1,4 +1,4 @@
-package controladores;
+package com.mmacedo.registroalumnos.controladores;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
