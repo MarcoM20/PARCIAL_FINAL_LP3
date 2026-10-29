@@ -1,6 +1,6 @@
 package com.mmacedo.registroalumnos.utilidades;
 
-import modelo.Alumno;
+import com.mmacedo.registroalumnos.modelo.Alumno;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -102,7 +102,7 @@ public class ExportadorExcel {
         font.setBold(true);
         font.setColor(IndexedColors.WHITE.getIndex());
         style.setFont(font);
-        style.setFill(FillPatternType.SOLID_FOREGROUND);
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         style.setFillForegroundColor(IndexedColors.BLUE.getIndex());
         style.setAlignment(HorizontalAlignment.CENTER);
         style.setVerticalAlignment(VerticalAlignment.CENTER);

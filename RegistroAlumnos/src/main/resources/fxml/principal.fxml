@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<!--
+Archivo FXML de ejemplo para la interfaz principal
+Integra controles para:
+- Guardar alumnos
+- Cargar alumnos
+- Exportar a Excel
+- Mostrar estado y progreso
+-->
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.ControladorPrincipal">
+    
+    <!-- ENCABEZADO -->
+    <top>
+        <VBox prefHeight="100.0" prefWidth="900.0" spacing="10.0" style="-fx-background-color: #2c3e50; -fx-padding: 15;" BorderPane.alignment="CENTER">
+            <Label text="REGISTRO DE ALUMNOS" textFill="WHITE">
+                <font>
+                    <Font name="Arial Bold" size="24.0" />
+                </font>
+            </Label>
+            <Label text="Sistema de gestión de calificaciones con SQLite y exportación a Excel" textFill="#bdc3c7">
+                <font>
+                    <Font name="Arial" size="12.0" />
+                </font>
+            </Label>
+        </VBox>
+    </top>
+    
+    <!-- CONTENIDO CENTRAL -->
+    <center>
+        <VBox prefHeight="500.0" prefWidth="900.0" spacing="15.0" style="-fx-padding: 20;">
+            
+            <!-- Área de botones principales -->
+            <HBox spacing="10.0" prefHeight="50.0">
+                <Button fx:id="btnGuardar" mnemonicParsing="false" prefHeight="40.0" prefWidth="150.0" style="-fx-font-size: 12; -fx-padding: 10;" text="💾 Guardar Alumno">
+                    <font>
+                        <Font name="Arial" size="12.0" />
+                    </font>
+                </Button>
+                
+                <Button fx:id="btnCargar" mnemonicParsing="false" prefHeight="40.0" prefWidth="150.0" style="-fx-font-size: 12; -fx-padding: 10;" text="📂 Cargar Alumnos">
+                    <font>
+                        <Font name="Arial" size="12.0" />
+                    </font>
+                </Button>
+                
+                <Button fx:id="btnExportar" mnemonicParsing="false" prefHeight="40.0" prefWidth="150.0" style="-fx-font-size: 12; -fx-padding: 10;" text="📊 Exportar Excel">
+                    <font>
+                        <Font name="Arial" size="12.0" />
+                    </font>
+                </Button>
+                
+                <HBox HBox.hgrow="ALWAYS" />
+                
+                <Label text="Estado:" textFill="#2c3e50">
+                    <font>
+                        <Font name="Arial Bold" size="12.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblEstado" text="✓ Listo" textFill="#27ae60">
+                    <font>
+                        <Font name="Arial" size="12.0" />
+                    </font>
+                </Label>
+            </HBox>
+            
+            <Separator prefWidth="200.0" />
+            
+            <!-- Barra de progreso -->
+            <VBox spacing="5.0">
+                <Label text="Progreso de operación:" textFill="#2c3e50">
+                    <font>
+                        <Font name="Arial Bold" size="11.0" />
+                    </font>
+                </Label>
+                <ProgressBar fx:id="pbProgreso" prefHeight="20.0" prefWidth="860.0" progress="0.0" />
+            </VBox>
+            
+            <Separator prefWidth="200.0" />
+            
+            <!-- Área de contenido (mostrar alumnos registrados) -->
+            <Label text="Información de Alumnos:" textFill="#2c3e50">
+                <font>
+                    <Font name="Arial Bold" size="12.0" />
+                </font>
+            </Label>
+            
+            <TextArea fx:id="taContenido" prefHeight="350.0" prefWidth="860.0" style="-fx-font-family: 'Consolas'; -fx-font-size: 11;" text="Haz clic en 'Cargar Alumnos' para ver los registros..." wrapText="true" />
+            
+        </VBox>
+    </center>
+    
+    <!-- PIE DE PÁGINA -->
+    <bottom>
+        <VBox prefHeight="80.0" prefWidth="900.0" spacing="10.0" style="-fx-background-color: #ecf0f1; -fx-padding: 15;">
+            
+            <Separator prefWidth="200.0" />
+            
+            <HBox spacing="30.0">
+                <VBox spacing="3.0">
+                    <Label text="Base de Datos:" textFill="#2c3e50">
+                        <font>
+                            <Font name="Arial Bold" size="10.0" />
+                        </font>
+                    </Label>
+                    <Label text="SQLite - alumnos.db" textFill="#34495e">
+                        <font>
+                            <Font name="Arial" size="9.0" />
+                        </font>
+                    </Label>
+                </VBox>
+                
+                <VBox spacing="3.0">
+                    <Label text="Patrones de Diseño:" textFill="#2c3e50">
+                        <font>
+                            <Font name="Arial Bold" size="10.0" />
+                        </font>
+                    </Label>
+                    <Label text="MVC, DAO, Task (Threading)" textFill="#34495e">
+                        <font>
+                            <Font name="Arial" size="9.0" />
+                        </font>
+                    </Label>
+                </VBox>
+                
+                <VBox spacing="3.0">
+                    <Label text="Exportación:" textFill="#2c3e50">
+                        <font>
+                            <Font name="Arial Bold" size="10.0" />
+                        </font>
+                    </Label>
+                    <Label text="Excel XLSX (Apache POI)" textFill="#34495e">
+                        <font>
+                            <Font name="Arial" size="9.0" />
+                        </font>
+                    </Label>
+                </VBox>
+                
+                <HBox HBox.hgrow="ALWAYS" />
+                
+                <Label text="v1.0 | Proyecto Educativo" textFill="#7f8c8d">
+                    <font>
+                        <Font name="Arial" size="9.0" />
+                    </font>
+                </Label>
+            </HBox>
+            
+        </VBox>
+    </bottom>
+    
+</BorderPane>

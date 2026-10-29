@@ -1,9 +1,9 @@
 package com.mmacedo.registroalumnos.tareas;
 
 import javafx.concurrent.Task;
-import modelo.Alumno;
-import bd.BaseDatosAlumnos;
-import utilidades.ExportadorExcel;
+import com.mmacedo.registroalumnos.modelo.Alumno;
+import com.mmacedo.registroalumnos.bd.BaseDatosAlumnos;
+import com.mmacedo.registroalumnos.utilidades.ExportadorExcel;
 import java.util.List;
 
 /**
@@ -126,7 +126,7 @@ public abstract class TareaBD<V> extends Task<V> {
                 }
             }
             
-            boolean resultado = ExportadorExcel.exportarAlumnos(alumnos, rutaArchivo);
+            boolean resultado = ExportadorExcel.exportarAlumnos((List<Alumno>) alumnos, rutaArchivo);
             updateProgress(total, total);
             updateMessage(resultado ? "✓ Archivo exportado: " + rutaArchivo : 
                                     "✗ Error al exportar");

@@ -6,7 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import controladores.ControladorPrincipal;
+import com.mmacedo.registroalumnos.controladores.ControladorPrincipal;
 
 import java.io.IOException;
 

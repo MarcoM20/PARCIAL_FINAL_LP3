@@ -7,9 +7,9 @@ import javafx.application.Platform;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import modelo.Alumno;
-import bd.BaseDatosAlumnos;
-import tareas.TareaBD;
+import com.mmacedo.registroalumnos.modelo.Alumno;
+import com.mmacedo.registroalumnos.bd.BaseDatosAlumnos;
+import com.mmacedo.registroalumnos.tareas.TareaBD;
 import java.io.File;
 import java.util.List;
 
@@ -181,7 +181,7 @@ public class ControladorPrincipal {
             
             // Crear tarea de exportación
             TareaBD.ExportarExcel tarea = new TareaBD.ExportarExcel(
-                baseDatos, alumnosActuales, archivo.getAbsolutePath()
+            baseDatos, (List<Alumno>) alumnosActuales, archivo.getAbsolutePath()
             );
             
             // Actualizar barra de progreso
