@@ -1,274 +1,189 @@
 package com.mmacedo.registroalumnos.bd;
 
 import com.mmacedo.registroalumnos.modelo.Alumno;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Clase para gestionar la conexión y operaciones con la base de datos SQLite
- * Implementa el patrón DAO (Data Access Object)
- */
 public class BaseDatosAlumnos {
-    
+
     private static final String URL = "jdbc:sqlite:alumnos.db";
+    private static final String COLUMNAS = "nombre, apellido, carrera, semestre, "
+            + "evidencia1, evidencia2, examen_parcial, evidencia3, evidencia4, examen_final";
+
     private Connection conexion;
-    
-    /**
-     * Constructor que inicializa la base de datos
-     */
+
     public BaseDatosAlumnos() {
-        inicializarBaseDatos();
+        conectar();
+        crearTabla();
     }
-    
-    /**
-     * Establece conexión con la base de datos SQLite
-     */
+
     public void conectar() {
         try {
             Class.forName("org.sqlite.JDBC");
             conexion = DriverManager.getConnection(URL);
-            System.out.println("✓ Conexión a BD establecida correctamente");
-        } catch (ClassNotFoundException e) {
-            System.out.println("✗ Error: Driver JDBC no encontrado");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            System.out.println("✗ Error al conectar a la BD");
-            e.printStackTrace();
+        } catch (ClassNotFoundException | SQLException e) {
+            registrarError("No se pudo conectar a la base de datos", e);
         }
     }
-    
-    /**
-     * Cierra la conexión con la base de datos
-     */
+
     public void desconectar() {
         try {
             if (conexion != null && !conexion.isClosed()) {
                 conexion.close();
-                System.out.println("✓ Conexión cerrada");
             }
         } catch (SQLException e) {
-            System.out.println("✗ Error al cerrar la conexión");
-            e.printStackTrace();
+            registrarError("Error al cerrar la conexion", e);
         }
     }
-    
-    /**
-     * Crea las tablas si no existen
-     */
-    private void inicializarBaseDatos() {
-        conectar();
-        
-        String sqlCrearTabla = "CREATE TABLE IF NOT EXISTS alumnos (" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "nombre TEXT NOT NULL," +
-                "apellido TEXT NOT NULL," +
-                "carrera TEXT NOT NULL," +
-                "semestre INTEGER NOT NULL," +
-                "evidencia1 REAL DEFAULT 0," +
-                "evidencia2 REAL DEFAULT 0," +
-                "examen_parcial REAL DEFAULT 0," +
-                "evidencia3 REAL DEFAULT 0," +
-                "evidencia4 REAL DEFAULT 0," +
-                "examen_final REAL DEFAULT 0," +
-                "fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP" +
-                ")";
-        
+
+    private void crearTabla() {
+        String sql = "CREATE TABLE IF NOT EXISTS alumnos ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "nombre TEXT NOT NULL,"
+                + "apellido TEXT NOT NULL,"
+                + "carrera TEXT NOT NULL,"
+                + "semestre INTEGER NOT NULL,"
+                + "evidencia1 REAL DEFAULT 0,"
+                + "evidencia2 REAL DEFAULT 0,"
+                + "examen_parcial REAL DEFAULT 0,"
+                + "evidencia3 REAL DEFAULT 0,"
+                + "evidencia4 REAL DEFAULT 0,"
+                + "examen_final REAL DEFAULT 0,"
+                + "fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP)";
+
         try (Statement stmt = conexion.createStatement()) {
-            stmt.execute(sqlCrearTabla);
-            System.out.println("✓ Tabla 'alumnos' lista");
+            stmt.execute(sql);
         } catch (SQLException e) {
-            System.out.println("✗ Error al crear tabla");
-            e.printStackTrace();
+            registrarError("Error al crear la tabla", e);
         }
     }
-    
-    /**
-     * Inserta un alumno en la base de datos
-     * @param alumno El alumno a insertar
-     * @return true si fue exitoso, false en caso contrario
-     */
+
     public boolean insertarAlumno(Alumno alumno) {
-        String sql = "INSERT INTO alumnos (nombre, apellido, carrera, semestre, " +
-                "evidencia1, evidencia2, examen_parcial, evidencia3, evidencia4, examen_final) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-            pstmt.setString(1, alumno.getNombre());
-            pstmt.setString(2, alumno.getApellido());
-            pstmt.setString(3, alumno.getCarrera());
-            pstmt.setInt(4, alumno.getSemestre());
-            pstmt.setDouble(5, alumno.getEvidencia1());
-            pstmt.setDouble(6, alumno.getEvidencia2());
-            pstmt.setDouble(7, alumno.getExamenParcial());
-            pstmt.setDouble(8, alumno.getEvidencia3());
-            pstmt.setDouble(9, alumno.getEvidencia4());
-            pstmt.setDouble(10, alumno.getExamenFinal());
-            
-            pstmt.executeUpdate();
+        String sql = "INSERT INTO alumnos (" + COLUMNAS + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            cargarParametros(ps, alumno);
+            ps.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.out.println("✗ Error al insertar alumno");
-            e.printStackTrace();
+            registrarError("Error al insertar alumno", e);
             return false;
         }
     }
-    
-    /**
-     * Obtiene todos los alumnos de la base de datos
-     * @return Lista de alumnos
-     */
+
     public List<Alumno> obtenerTodos() {
         List<Alumno> alumnos = new ArrayList<>();
-        String sql = "SELECT * FROM alumnos";
-        
+        String sql = "SELECT * FROM alumnos ORDER BY id";
         try (Statement stmt = conexion.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-            
             while (rs.next()) {
-                Alumno alumno = new Alumno();
-                alumno.setId(rs.getInt("id"));
-                alumno.setNombre(rs.getString("nombre"));
-                alumno.setApellido(rs.getString("apellido"));
-                alumno.setCarrera(rs.getString("carrera"));
-                alumno.setSemestre(rs.getInt("semestre"));
-                alumno.setEvidencia1(rs.getDouble("evidencia1"));
-                alumno.setEvidencia2(rs.getDouble("evidencia2"));
-                alumno.setExamenParcial(rs.getDouble("examen_parcial"));
-                alumno.setEvidencia3(rs.getDouble("evidencia3"));
-                alumno.setEvidencia4(rs.getDouble("evidencia4"));
-                alumno.setExamenFinal(rs.getDouble("examen_final"));
-                
-                alumnos.add(alumno);
+                alumnos.add(mapear(rs));
             }
         } catch (SQLException e) {
-            System.out.println("✗ Error al obtener alumnos");
-            e.printStackTrace();
+            registrarError("Error al obtener alumnos", e);
         }
-        
         return alumnos;
     }
-    
-    /**
-     * Obtiene un alumno por su ID
-     * @param id El ID del alumno
-     * @return El alumno encontrado o null
-     */
+
     public Alumno obtenerPorId(int id) {
         String sql = "SELECT * FROM alumnos WHERE id = ?";
-        
-        try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                Alumno alumno = new Alumno();
-                alumno.setId(rs.getInt("id"));
-                alumno.setNombre(rs.getString("nombre"));
-                alumno.setApellido(rs.getString("apellido"));
-                alumno.setCarrera(rs.getString("carrera"));
-                alumno.setSemestre(rs.getInt("semestre"));
-                alumno.setEvidencia1(rs.getDouble("evidencia1"));
-                alumno.setEvidencia2(rs.getDouble("evidencia2"));
-                alumno.setExamenParcial(rs.getDouble("examen_parcial"));
-                alumno.setEvidencia3(rs.getDouble("evidencia3"));
-                alumno.setEvidencia4(rs.getDouble("evidencia4"));
-                alumno.setExamenFinal(rs.getDouble("examen_final"));
-                
-                return alumno;
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapear(rs);
+                }
             }
         } catch (SQLException e) {
-            System.out.println("✗ Error al obtener alumno");
-            e.printStackTrace();
+            registrarError("Error al obtener alumno", e);
         }
-        
         return null;
     }
-    
-    /**
-     * Actualiza los datos de un alumno
-     * @param alumno El alumno con datos actualizados
-     * @return true si fue exitoso
-     */
+
     public boolean actualizarAlumno(Alumno alumno) {
-        String sql = "UPDATE alumnos SET nombre = ?, apellido = ?, carrera = ?, " +
-                "semestre = ?, evidencia1 = ?, evidencia2 = ?, examen_parcial = ?, " +
-                "evidencia3 = ?, evidencia4 = ?, examen_final = ? WHERE id = ?";
-        
-        try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-            pstmt.setString(1, alumno.getNombre());
-            pstmt.setString(2, alumno.getApellido());
-            pstmt.setString(3, alumno.getCarrera());
-            pstmt.setInt(4, alumno.getSemestre());
-            pstmt.setDouble(5, alumno.getEvidencia1());
-            pstmt.setDouble(6, alumno.getEvidencia2());
-            pstmt.setDouble(7, alumno.getExamenParcial());
-            pstmt.setDouble(8, alumno.getEvidencia3());
-            pstmt.setDouble(9, alumno.getEvidencia4());
-            pstmt.setDouble(10, alumno.getExamenFinal());
-            pstmt.setInt(11, alumno.getId());
-            
-            pstmt.executeUpdate();
+        String sql = "UPDATE alumnos SET nombre = ?, apellido = ?, carrera = ?, semestre = ?, "
+                + "evidencia1 = ?, evidencia2 = ?, examen_parcial = ?, "
+                + "evidencia3 = ?, evidencia4 = ?, examen_final = ? WHERE id = ?";
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            cargarParametros(ps, alumno);
+            ps.setInt(11, alumno.getId());
+            ps.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.out.println("✗ Error al actualizar alumno");
-            e.printStackTrace();
+            registrarError("Error al actualizar alumno", e);
             return false;
         }
     }
-    
-    /**
-     * Elimina un alumno de la base de datos
-     * @param id El ID del alumno
-     * @return true si fue exitoso
-     */
+
     public boolean eliminarAlumno(int id) {
         String sql = "DELETE FROM alumnos WHERE id = ?";
-        
-        try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            pstmt.executeUpdate();
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.out.println("✗ Error al eliminar alumno");
-            e.printStackTrace();
+            registrarError("Error al eliminar alumno", e);
             return false;
         }
     }
-    
-    /**
-     * Obtiene la cantidad total de alumnos registrados
-     * @return Cantidad de alumnos
-     */
+
     public int contarAlumnos() {
-        String sql = "SELECT COUNT(*) as total FROM alumnos";
-        
+        String sql = "SELECT COUNT(*) AS total FROM alumnos";
         try (Statement stmt = conexion.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-            
             if (rs.next()) {
                 return rs.getInt("total");
             }
         } catch (SQLException e) {
-            System.out.println("✗ Error al contar alumnos");
-            e.printStackTrace();
+            registrarError("Error al contar alumnos", e);
         }
-        
         return 0;
     }
-    
-    /**
-     * Elimina todos los alumnos (para limpiar la BD)
-     */
+
     public void limpiarBaseDatos() {
-        String sql = "DELETE FROM alumnos";
-        
         try (Statement stmt = conexion.createStatement()) {
-            stmt.execute(sql);
-            System.out.println("✓ Base de datos limpiada");
+            stmt.execute("DELETE FROM alumnos");
         } catch (SQLException e) {
-            System.out.println("✗ Error al limpiar la base de datos");
-            e.printStackTrace();
+            registrarError("Error al limpiar la base de datos", e);
         }
+    }
+
+    private void cargarParametros(PreparedStatement ps, Alumno a) throws SQLException {
+        ps.setString(1, a.getNombre());
+        ps.setString(2, a.getApellido());
+        ps.setString(3, a.getCarrera());
+        ps.setInt(4, a.getSemestre());
+        ps.setDouble(5, a.getEvidencia1());
+        ps.setDouble(6, a.getEvidencia2());
+        ps.setDouble(7, a.getExamenParcial());
+        ps.setDouble(8, a.getEvidencia3());
+        ps.setDouble(9, a.getEvidencia4());
+        ps.setDouble(10, a.getExamenFinal());
+    }
+
+    private Alumno mapear(ResultSet rs) throws SQLException {
+        Alumno alumno = new Alumno();
+        alumno.setId(rs.getInt("id"));
+        alumno.setNombre(rs.getString("nombre"));
+        alumno.setApellido(rs.getString("apellido"));
+        alumno.setCarrera(rs.getString("carrera"));
+        alumno.setSemestre(rs.getInt("semestre"));
+        alumno.setEvidencia1(rs.getDouble("evidencia1"));
+        alumno.setEvidencia2(rs.getDouble("evidencia2"));
+        alumno.setExamenParcial(rs.getDouble("examen_parcial"));
+        alumno.setEvidencia3(rs.getDouble("evidencia3"));
+        alumno.setEvidencia4(rs.getDouble("evidencia4"));
+        alumno.setExamenFinal(rs.getDouble("examen_final"));
+        return alumno;
+    }
+
+    // Único método genérico para manejar todas las excepciones
+    private void registrarError(String mensaje, Exception e) {
+        System.err.println(mensaje + ": " + e.getMessage());
     }
 }
