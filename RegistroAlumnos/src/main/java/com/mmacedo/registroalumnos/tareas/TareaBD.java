@@ -1,4 +1,4 @@
-package tareas;
+package com.mmacedo.registroalumnos.tareas;
 
 import javafx.concurrent.Task;
 import modelo.Alumno;
