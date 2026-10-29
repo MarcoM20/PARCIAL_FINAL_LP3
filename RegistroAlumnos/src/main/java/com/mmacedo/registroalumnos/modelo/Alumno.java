@@ -1,4 +1,4 @@
-package modelo;
+package com.mmacedo.registroalumnos.modelo;
 
 public class Alumno {
     private int id;
